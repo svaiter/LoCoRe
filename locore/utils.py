@@ -9,7 +9,7 @@ from scipy import linalg as lin
 
 def null(A, tol=1e-10):
     (m,n) = A.shape
-    U, S, Vh = linalg.svd(A)
+    U, S, Vh = lin.svd(A)
     if m > 1:
         s = np.diag(S)
     elif m == 1:
