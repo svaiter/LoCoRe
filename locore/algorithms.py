@@ -238,7 +238,8 @@ def forward_backward_dual(grad_fs, prox_gs, K, x0, L,
     if isinstance(K, np.ndarray):
         op = lambda u: np.dot(K, u)
         op.T = lambda u: np.dot(K.T, u)
-        return forward_backward_dual(grad_fs, prox_gs, op, x0, L,
+        return forward_backward_dual(
+            grad_fs, prox_gs, op, x0, L,
             maxiter=maxiter, method=method, fbdamping=fbdamping,
             full_output=full_output, retall=retall, callback=callback)
 
@@ -248,7 +249,8 @@ def forward_backward_dual(grad_fs, prox_gs, K, x0, L,
         new_callback = lambda u: callback(grad_fs(-K.T(u)))
     new_grad = lambda u: - K(grad_fs(-K.T(u)))
     u0 = K(x0)
-    res = forward_backward(prox_gs, new_grad, u0, L, maxiter=maxiter,
+    res = forward_backward(
+        prox_gs, new_grad, u0, L, maxiter=maxiter,
         method=method, fbdamping=fbdamping, full_output=full_output,
         retall=retall, callback=new_callback)
 
@@ -314,7 +316,8 @@ def admm(prox_fs, prox_g, K, x0,
     if isinstance(K, np.ndarray):
         op = lambda u: np.dot(K, u)
         op.T = lambda u: np.dot(K.T, u)
-        return admm(prox_fs, prox_g, op, x0, maxiter=maxiter, theta=theta,
+        return admm(
+            prox_fs, prox_g, op, x0, maxiter=maxiter, theta=theta,
             sigma=sigma, tau=tau, full_output=full_output, retall=retall,
             callback=callback)
     if not(sigma and tau):

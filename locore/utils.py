@@ -7,8 +7,9 @@ import numpy as np
 import scipy
 from scipy import linalg as lin
 
+
 def null(A, tol=1e-10):
-    (m,n) = A.shape
+    (m, n) = A.shape
     U, S, Vh = lin.svd(A)
     if m > 1:
         s = np.diag(S)
@@ -17,7 +18,7 @@ def null(A, tol=1e-10):
     else:
         s = 0
     r = np.sum(s > tol)
-    return Vh.T[:,r:n]
+    return Vh.T[:, r:n]
 
 
 def operator_norm(linop, n=None, maxiter=30, check=False):
@@ -50,6 +51,7 @@ def operator_norm(linop, n=None, maxiter=30, check=False):
     L = e[-1]
     return L
 
+
 # Adrien Gaidon - INRIA - 2011
 def euclidean_proj_simplex(v, s=1):
     """ Compute the Euclidean projection on a positive simplex
@@ -73,7 +75,8 @@ def euclidean_proj_simplex(v, s=1):
 
     Notes
     -----
-    The complexity of this algorithm is in O(n log(n)) as it involves sorting v.
+    The complexity of this algorithm is in O(n log(n)) as it
+    involves sorting v.
     Better alternatives exist for high-dimensional sparse vectors (cf. [1])
     However, this implementation still easily scales to millions of dimensions.
 
@@ -100,6 +103,7 @@ def euclidean_proj_simplex(v, s=1):
     # compute the projection by thresholding v using theta
     w = (v - theta).clip(min=0)
     return w
+
 
 # Adrien Gaidon - INRIA - 2011
 def l1ball_projection(v, s=1):
@@ -132,7 +136,7 @@ def l1ball_projection(v, s=1):
     """
     assert s > 0, "Radius s must be strictly positive (%d <= 0)" % s
     if len(v.shape) > 1:
-        n,m = v.shape
+        n, m = v.shape
         assert m == 1, "Must be 1D vector"
         v = v.flatten()
     else:
@@ -149,7 +153,7 @@ def l1ball_projection(v, s=1):
     w = euclidean_proj_simplex(u, s=s)
     # compute the solution to the original problem on v
     w *= np.sign(v)
-    if m <> 0:
-        return w[:,np.newaxis]
+    if m != 0:
+        return w[:, np.newaxis]
     else:
         return w
