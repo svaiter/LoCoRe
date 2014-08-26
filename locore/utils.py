@@ -7,6 +7,18 @@ import numpy as np
 import scipy
 from scipy import linalg as lin
 
+def null(A, tol=1e-10):
+    (m,n) = A.shape
+    U, S, Vh = linalg.svd(A)
+    if m > 1:
+        s = np.diag(S)
+    elif m == 1:
+        s = S[1]
+    else:
+        s = 0
+    r = np.sum(s > tol)
+    return Vh.T[:,r:n]
+
 
 def operator_norm(linop, n=None, maxiter=30, check=False):
     if hasattr(linop, 'norm') and not check:
