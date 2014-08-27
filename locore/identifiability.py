@@ -24,24 +24,7 @@ def crit_l1_synthesis(Phi, x):
     return res
 
 
-# L^1 analysis
-def _ic_minimization(DJ, Omega_x0, maxiter):
-    """
-    Returns the solution of the problem
-        min_{w \in Ker(D_J)} ||Omega sign(D_I^* x_0) - w||_\infty
-    """
-    proj = np.dot(np.dot(DJ.T, sp.linalg.pinv(np.dot(DJ, DJ.T))), DJ)
-    prox_indic = lambda w, la: w - np.dot(proj, w)
-
-    proxinf = dual_prox(l1ball_projection)
-    prox_obj = lambda x, la: -proxinf(Omega_x0 - x, la) + Omega_x0
-
-    w = douglas_rachford(prox_indic, prox_obj, np.zeros((np.size(DJ, 1), 1)),
-                         maxiter=maxiter)
-    return np.max(np.abs(Omega_x0 - w))
-
-
-def crit_l1_analysis(D, Phi, x):
+def crit_l1_analysis(D, Phi, x, maxiter=50):
     # Dimensions of the problem
     N = np.size(D, 0)
     P = np.size(D, 1)
@@ -63,30 +46,28 @@ def crit_l1_analysis(D, Phi, x):
     Omega = np.dot(sp.linalg.pinv(DJ), np.dot((np.eye(N) - np.dot(gram,
                                                                      A)), DI))
 
-    # Compute wRC
-    wRC = sp.linalg.norm(Omega, np.inf)
-
     # D-sign
     ds = np.sign(np.dot(DI.T, x))
 
-    # Compute IC-noker
-    ic_noker = lambda s: np.max(np.abs(np.dot(Omega, s)))
-    ICnoker = ic_noker(ds)
-
     # Compute IC
     if np.prod(null(DJ).shape) != 0:
-        ic_ker = lambda s: _ic_minimization(DJ, np.dot(Omega, s), maxiter)
+        # Returns the solution of the problem
+        #   min_{w \in Ker(D_J)} ||Omega sign(D_I^* x_0) - w||_\infty
+        Omega_x0 = np.dot(Omega, s)
+        proj = np.dot(np.dot(DJ.T, sp.linalg.pinv(np.dot(DJ, DJ.T))), DJ)
+        prox_indic = lambda w, la: w - np.dot(proj, w)
+        
+        proxinf = dual_prox(l1ball_projection)
+        prox_obj = lambda x, la: -proxinf(Omega_x0 - x, la) + Omega_x0
+        
+        w = douglas_rachford(prox_indic, prox_obj, np.zeros((np.size(DJ, 1), 1)),
+                             maxiter=maxiter)
+        ic = np.max(np.abs(Omega_x0 - w))
     else:
-        ic_ker = ic_noker
-
-    ic = ic_ker(ds)
+        ic = np.max(np.abs(np.dot(Omega, ds)))
 
     res = {
-        'wRC': wRC,
-        'IC_noker': ICnoker,
         'ic': ic,
-        'ic_noker': ic_noker,
-        'ic_ker': ic_ker,
         'I': I,
         'J': J,
         'U': U,
