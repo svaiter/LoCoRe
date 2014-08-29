@@ -5,6 +5,9 @@
 LoCoRe is a Python module dedicated to low complexity regularizations, such as sparse regularizations or low rank priors.
 It includes procedures to compute solutions of these regularizations and identifiability criterions.
 
+*This work is in progress and should not be used in the current form*.
+Please see TODO.org for the missing part.
+
 ## Installation
 
 This package uses distutils, which is the default way of installing
