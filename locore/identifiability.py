@@ -70,6 +70,7 @@ def crit_l1_analysis(D, Phi, x, maxiter=50):
     # TODO: THIS IS NOT THE GOOD CERTIFICATE !!!
     return ic, Omega_x0
 
+
 def crit_nuclear(Phi, x):
     n1, n2 = x.shape
     n = n1 * n2
@@ -117,7 +118,7 @@ def crit_nuclear(Phi, x):
     dimT = n1 ** 2 - (n1-r) ** 2
 
     if rPhiT < dimT:
-        return np.Inf, np.zeros(shape=(n,0))
+        return np.Inf, np.zeros(shape=(n, 0))
     elif rPhiT == dimT:
         # IC(X) = | PhiS' * PhiT^{+,*} * e |_{*,inf}
         # ic = norm( resh( PhiS' * pinv(PhiT)' * e )  );
@@ -125,7 +126,7 @@ def crit_nuclear(Phi, x):
         # Compute pinv(PhiT)' * e
         #    = Phi * B * pinv( B'*Phi'*Phi*B ) * B' * e(:)
         certificate = np.dot(PhiB, np.dot(
-            sp.linalg.pinv(np.dot(PhiB.T, PhiB)), 
+            sp.linalg.pinv(np.dot(PhiB.T, PhiB)),
             np.dot(B.T, e)))
         ic = sp.linalg.norm(PSmat(resh(np.dot(Phi.T, certificate))))
         return ic, certificate
@@ -137,17 +138,18 @@ def crit_linf(Phi, x, thresh=1e6):
     n = x.shape[0]
     I = linf_support(x)
     J = ~I
-    sI = np.sign(x[I,:])
+    sI = np.sign(x[I, :])
     k = sI.shape[0]
     s = np.zeros(x.shape)
-    s[I,:] = sI
+    s[I, :] = sI
     BT = np.eye(n)
-    BT = np.concatenate((BT[:,J], s/np.sqrt(k)), axis=1)
-    PhiT = np.dot(Phi, BT)    
+    BT = np.concatenate((BT[:, J], s/np.sqrt(k)), axis=1)
+    PhiT = np.dot(Phi, BT)
     CT = np.dot(PhiT.T, PhiT)
     if np.linalg.cond(CT) > thresh:
-        return np.inf, np.zeros(shape=(n,0))
+        return np.inf, np.zeros(shape=(n, 0))
     else:
-        certificate = np.dot(Phi.T, np.dot(PhiT, np.dot(np.linalg.inv(CT), np.dot(BT.T, s/k))))
-        uI = certificate[I,:] - np.dot(sI, np.dot(sI.T, certificate[I,:]))/k
+        certificate = np.dot(Phi.T, np.dot(PhiT, np.dot(np.linalg.inv(CT),
+                                                        np.dot(BT.T, s/k))))
+        uI = certificate[I, :] - np.dot(sI, np.dot(sI.T, certificate[I, :]))/k
         return np.max(- k * uI * sI), certificate

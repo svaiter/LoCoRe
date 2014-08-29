@@ -49,10 +49,12 @@ class AnalysisSparse(object):
         return np.eye(corr.shape[0])[:, support]
 
     def solve_l2(self, la, y):
-        return solve_l1_analysis(self.DS, self.Phi, y, la=la, maxiter=500, constrained=False)
+        return solve_l1_analysis(self.DS, self.Phi, y, la=la,
+                                 maxiter=500, constrained=False)
 
     def solve_noiseless(self, y):
-        return solve_l1_analysis(self.DS, self.Phi, y, la=0.0, maxiter=500, constrained=True)
+        return solve_l1_analysis(self.DS, self.Phi, y, la=0.0,
+                                 maxiter=500, constrained=True)
 
     def ic(self, x):
         return crit_l1_analysis(self.DS, self.Phi, x)[0]
