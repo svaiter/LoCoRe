@@ -18,16 +18,10 @@ def crit_l1_synthesis(Phi, x):
     I = l1_support(x)
     J = ~I
     sI = np.sign(x)[I, :]
-    corr = np.dot(np.dot(Phi[:, J].T, sp.linalg.pinv(Phi[:, I].T)), sI)
+    certificate = np.dot(sp.linalg.pinv(Phi[:, I].T), sI)
+    corr = np.dot(Phi[:, J].T, certificate)
     ic = np.max(np.abs(corr))
-    res = {
-        'ic': ic,
-        'I': I,
-        'J': J,
-        'sI': sI,
-        'corr': corr
-    }
-    return res
+    return ic, certificate
 
 
 def crit_l1_analysis(D, Phi, x, maxiter=50):
@@ -56,10 +50,10 @@ def crit_l1_analysis(D, Phi, x, maxiter=50):
     ds = np.sign(np.dot(DI.T, x))
 
     # Compute IC
+    Omega_x0 = np.dot(Omega, ds)
     if np.prod(null(DJ).shape) != 0:
         # Returns the solution of the problem
         #   min_{w \in Ker(D_J)} ||Omega sign(D_I^* x_0) - w||_\infty
-        Omega_x0 = np.dot(Omega, s)
         proj = np.dot(np.dot(DJ.T, sp.linalg.pinv(np.dot(DJ, DJ.T))), DJ)
         prox_indic = lambda w, la: w - np.dot(proj, w)
 
@@ -70,38 +64,10 @@ def crit_l1_analysis(D, Phi, x, maxiter=50):
                              np.zeros((np.size(DJ, 1), 1)), maxiter=maxiter)
         ic = np.max(np.abs(Omega_x0 - w))
     else:
-        ic = np.max(np.abs(np.dot(Omega, ds)))
+        ic = np.max(np.abs(Omega_x0))
 
-    res = {
-        'ic': ic,
-        'I': I,
-        'J': J,
-        'U': U,
-        'A': A,
-        'Omega': Omega,
-        'ds': ds
-    }
-
-    return res
-
-
-def crit_l1_l2_synthesis(blocks, Phi, x):
-    I = l1_l2_support(blocks, x)
-    J = ~I
-    e = l1_l2_normalize_subvector(blocks, I, x)
-    corr = np.dot(np.dot(Phi[:, J].T, sp.linalg.pinv(Phi[:, I].T)), e)
-    corr_extended = np.zeros(x.shape)
-    corr_extended[I, :] = corr[I, :]
-    ic = linf_l2_norm(blocks, corr_extended)
-    res = {
-        'ic': ic,
-        'I': I,
-        'J': J,
-        'e': e,
-        'corr': corr
-    }
-    return res
-
+    # TODO: THIS IS NOT THE GOOD CERTIFICATE !!!
+    return ic, Omega_x0
 
 def crit_nuclear(Phi, x):
     n1, n2 = x.shape
@@ -150,16 +116,17 @@ def crit_nuclear(Phi, x):
     dimT = n1 ** 2 - (n1-r) ** 2
 
     if rPhiT < dimT:
-        return np.Inf
+        return np.Inf, np.zeros(shape=(n,0))
     elif rPhiT == dimT:
         # IC(X) = | PhiS' * PhiT^{+,*} * e |_{*,inf}
         # ic = norm( resh( PhiS' * pinv(PhiT)' * e )  );
 
         # Compute pinv(PhiT)' * e
         #    = Phi * B * pinv( B'*Phi'*Phi*B ) * B' * e(:)
-        v = np.dot(PhiB, np.dot(sp.linalg.pinv(np.dot(PhiB.T, PhiB)),
-                                np.dot(B.T, e)))
-        ic = sp.linalg.norm(PSmat(resh(np.dot(Phi.T, v))))
-        return ic
+        certificate = np.dot(PhiB, np.dot(
+            sp.linalg.pinv(np.dot(PhiB.T, PhiB)), 
+            np.dot(B.T, e)))
+        ic = sp.linalg.norm(PSmat(resh(np.dot(Phi.T, certificate))))
+        return ic, certificate
     else:
         raise Exception("injectivity problem")
