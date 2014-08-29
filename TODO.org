@@ -1,0 +1,19 @@
+* TODO Add other priors
+** TODO l1-l2
+*** TODO uniform block structures
+*** TODO arbitrary structures
+** TODO analysis l1-l2
+** TODO analysis nuclear
+** TODO analysis linf
+** TODO polyhedral regularization
+* TODO return othogonal basis of the tangent model
+* TODO implement degrees of freedom computation
+* TODO docstrings for low rank and antisparse
+* TODO true examples in IPython notebooks
+** TODO Sparse spikes deconvolution
+** TODO TV denoising of images
+** TODO matrix completion
+** TODO linf CS
+* TODO more efficient implementations of the underlying solvers
+* TODO import contents from robust_sparse_analysis_regularization
+* TODO fix the missing part (solver for linf/nuclear + model tangent spaces)
