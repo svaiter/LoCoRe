@@ -35,6 +35,11 @@ def l1_support(x, eps=1e-6):
     return (np.abs(x) > eps).flatten()
 
 
+def linf_support(x, eps=1e-6):
+    max_value = np.max(np.abs(x))
+    return (np.abs(np.abs(x) - max_value) < eps).flatten()
+
+
 def l1_l2_support(blocks, x, eps=1e-6):
     support = np.zeros(x.shape, dtype=bool)
     for i in range(blocks.shape[0]):

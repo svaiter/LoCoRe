@@ -6,7 +6,12 @@ from .solvers import (
     solve_l1_synthesis_constrained,
     solve_l1_analysis
 )
-from .identifiability import crit_l1_synthesis, crit_l1_analysis, crit_nuclear
+from .identifiability import (
+    crit_l1_synthesis,
+    crit_l1_analysis,
+    crit_nuclear,
+    crit_linf
+)
 from .operators import l1_support
 
 
@@ -75,3 +80,24 @@ class LowRank(object):
 
     def linearized_precertificate(self, x):
         return crit_nuclear(self.Phi, x)[1]
+
+
+class AntiSparse(object):
+
+    def __init__(self, Phi):
+        self.Phi = Phi
+
+    def tangent_model(self, x):
+        return None
+
+    def solve_l2(self, la, y):
+        return None
+
+    def solve_noiseless(self, y):
+        return None
+
+    def ic(self, x):
+        return crit_linf(self.Phi, x)[0]
+
+    def linearized_precertificate(self, x):
+        return crit_linf(self.Phi, x)[1]
