@@ -17,3 +17,4 @@
 * TODO more efficient implementations of the underlying solvers
 * TODO import contents from robust_sparse_analysis_regularization
 * TODO fix the missing part (solver for linf/nuclear + model tangent spaces)
+* TODO check injectivity condition for l1 + analysis l1
